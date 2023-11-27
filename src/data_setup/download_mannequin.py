@@ -10,7 +10,7 @@ def run_cmd(url:str, save_path:str):
         url: url to download from
         save_path: path to save the downloaded file
     """
-    cmd = f"youtube-dl -o {save_path} '{url}'"
+    cmd = f"yt-dlp -f mp4 -o {save_path} '{url}'"
     
     #run command and catch any errors
     try:
@@ -53,7 +53,7 @@ def download_data(metadata_dir:str, save_dir:str):
                 url = f.readlines()[0]
                 
                 #save path for video
-                save_path_video = os.path.join(save_split_dir, file_path.split('.')[0]+'.mp4')
+                save_path_video = os.path.join(save_split_dir, os.path.basename(file_path).split('.')[0]+'.mp4')
                 
                 #download video
                 run_cmd(url, save_path_video)                
