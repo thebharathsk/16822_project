@@ -5,6 +5,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
+from natsort import natsorted
+
 sys.path.append('../')
 from colmap.read_write_model import read_images_binary, qvec2rotmat
 
@@ -44,9 +46,13 @@ def read_poses(model_path:str):
     #read poses
     poses = read_images_binary(bin_path)
     
+    #sort pose keys
+    keys_sorted = natsorted(poses.keys())
+    print(keys_sorted)
+    
     #iterate through poses
     camera_positions = []
-    for k in poses.keys():
+    for k in keys_sorted:
         #get qvec and tvec
         qvec = poses[k].qvec
         tvec = poses[k].tvec
@@ -75,19 +81,23 @@ def read_poses(model_path:str):
     
     #compute velocity and acceleration
     vel = np.gradient(tvecs_rel_mag)/t_sec
-    # vel = gaussian_average(vel, 5)
+    vel_ = gaussian_average(vel, 5)
     acc = np.gradient(vel)/t_sec
-    # acc = gaussian_average(acc, 5)
+    acc_ = gaussian_average(acc, 5)
     jerk = np.gradient(acc)/t_sec
-    # jerk = gaussian_average(jerk, 5)
+    jerk_ = gaussian_average(jerk, 5)
     
     #compute scale factor
     scale_factor = acc_gt/np.mean(acc)
+    scale_factor_ = acc_gt/np.mean(acc_)
+    
+    print(f"Acceleration avg {np.mean(acc)}, Scale factor: {scale_factor}")
+    print(f"Acceleration avg smooth {np.mean(acc_)}, Scale factor: {scale_factor_}")
     
     # #scale displacement, velocity, acceleration, and jerk
-    # tvecs_rel_mag = tvecs_rel_mag*scale_factor
-    # vel = vel*scale_factor
-    # acc = acc*scale_factor
+    tvecs_rel_mag = tvecs_rel_mag*scale_factor_
+    vel = vel_*scale_factor_
+    acc = acc_*scale_factor_
     
     #plot relative translation magnitudes
     plt.plot(tvecs_rel_mag)

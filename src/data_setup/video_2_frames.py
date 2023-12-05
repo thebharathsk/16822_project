@@ -32,6 +32,8 @@ def save_frames(video:str, output:str):
         #save frame
         cv2.imwrite(os.path.join(output_dir, f"frame_{str(frame_num).zfill(3)}.jpg"), frame)
 
+    print(f"Saved {frame_num} frames to {output_dir}")
+    
 if __name__ == "__main__":
     #parse arguments
     parser = argparse.ArgumentParser(description='Convert video to frames')
