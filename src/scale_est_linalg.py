@@ -10,26 +10,6 @@ from natsort import natsorted
 sys.path.append('../')
 from colmap.read_write_model import read_images_binary, qvec2rotmat
 
-def running_average(arr, window_size):
-    window = np.ones(int(window_size))/float(window_size)
-    return np.convolve(arr, window, 'valid')
-
-def gaussian_average(arr, window_size):
-    #check that window size is odd
-    if window_size % 2 == 0:
-        window_size += 1
-    
-    #compute sigma such that the window is +/- 3 standard deviations wide
-    sigma = window_size/6
-    
-    #position array
-    pos = np.arange(-window_size//2, window_size//2+1)
-    
-    #compute gaussian window
-    gaussian = np.exp(-(pos**2)/(2*sigma**2))
-    gaussian = gaussian/np.sum(gaussian)
-    
-    return np.convolve(arr, gaussian, 'same')
 
 def scale_est(model_path:str, results_path:str):
     """
@@ -53,6 +33,8 @@ def scale_est(model_path:str, results_path:str):
     
     #sort pose keys
     keys_sorted = natsorted(poses.keys())
+    
+    print(keys_sorted)
     
     #iterate through poses
     camera_positions = []
@@ -87,7 +69,7 @@ def scale_est(model_path:str, results_path:str):
     A[:,0] = t_rel[1:]
     A[:,1] = -0.5*t_rel[1:]**2
     
-    x = np.linalg.lstsq(A, disp_rel_mag[1:])[0]
+    x = np.linalg.lstsq(A, disp_rel_mag[1:], rcond=None)[0]
     
     u = x[0]
     g_est = x[1]
@@ -98,6 +80,9 @@ def scale_est(model_path:str, results_path:str):
     #scale displacement
     disp_rel_mag_scaled = disp_rel_mag*scale_factor
     disp_rel_mag_modeled = (u*t_rel - 0.5*g_est*t_rel**2)*scale_factor
+    error = np.abs(disp_rel_mag_scaled - disp_rel_mag_modeled)
+    mae = np.mean(error)
+    rmse = np.sqrt(np.mean(error**2))
     
     #plot relative translation magnitudes
     plt.plot(t_rel, disp_rel_mag_scaled, label='estimated')
@@ -123,6 +108,8 @@ def scale_est(model_path:str, results_path:str):
     print('estimated g = ', g_est)   
     print('estimated u scaled = ', u*scale_factor)
     print('estimated g scaled = ', g_est*scale_factor)
+    print(f'MAD = {mae*1000} mm')
+    print(f'RMSE = {rmse*1000} mm')
     
 if __name__ == "__main__":
     #parse arguments
