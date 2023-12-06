@@ -1,5 +1,5 @@
-IMAGE_PATH=/Users/bharath/Documents/acads/fall_2023/16822_project/data/frames/drop_2
-WORKSPACE_PATH=/Users/bharath/Documents/acads/fall_2023/16822_project/data/colmap/drop_2
+IMAGE_PATH=/Users/bharath/Documents/acads/fall_2023/16822_project/data/frames/drop_3
+WORKSPACE_PATH=/Users/bharath/Documents/acads/fall_2023/16822_project/data/colmap/drop_3
 QUALITY=high
 DATA_TYPE=video
 SINGLE_CAMERA=1
