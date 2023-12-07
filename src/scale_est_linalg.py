@@ -90,6 +90,7 @@ def scale_est(model_path:str, results_path:str):
     plt.legend()
     plt.xlabel('Time (sec)')
     plt.ylabel('Displacement (m)')
+    plt.title('Displacement obtained via COLMAP vs Kinematics model')
     plt.savefig(os.path.join(save_dir, 'disp.png'))
     plt.close()
     
